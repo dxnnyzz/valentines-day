@@ -138,23 +138,23 @@
       hint.textContent = "Name updated ✅";
     });
 
-    const HEART = [
-"  _  _   ",
-" ( \\/ )  ",
-"  \\  /   ",
-"   \\/    "
-].join("\\n");
+    const HEART = `
+  _  _
+ ( \\/ )
+  \\  /
+   \\/
+`.trimEnd();
 
-    const BIG_HEART = [
-"  **     **   ",
-" ****** ******",
-"***************",
-" ************* ",
-"  ***********  ",
-"    *******    ",
-"      ***      ",
-"       *       "
-].join("\\n");
+const BIG_HEART = `
+  **     **   
+ ****** ****** 
+*************** 
+ *************  
+  ***********   
+    *******     
+      ***       
+       *        
+`.trimEnd();
 
     function rand(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
 
@@ -187,22 +187,22 @@
     }
 
     function terminalScript(){
-      const lines = [
-        "Microsoft Windows [Version 10.0.19045.0]",
-        "(c) Microsoft Corporation. All rights reserved.",
-        "",
-        "C:\\\\> love.exe --target=valentine --mode=maximum",
-        "Loading feelings... OK",
-        "Compiling hugs... OK",
-        "Linking kisses... OK",
-        "",
-        BIG_HEART,
-        "",
-        "SUCCESS: You are my Valentine 💘",
-        fromName
-      ];
-      return lines.join("\\n");
-    }
+  const lines = [
+    "Microsoft Windows [Version 10.0.19045.0]",
+    "(c) Microsoft Corporation. All rights reserved.",
+    "",
+    "C:\\> love.exe --target=valentine --mode=maximum",
+    "Loading feelings... OK",
+    "Compiling hugs... OK",
+    "Linking kisses... OK",
+    "",
+    BIG_HEART,
+    "",
+    "SUCCESS: You are my Valentine 💘",
+    fromName
+  ];
+  return lines.join("\n");
+}
 
     function spawnFakeCmdStorm(count=10){
       const w = window.innerWidth, h = window.innerHeight;

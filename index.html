@@ -45,6 +45,7 @@ body{
   text-align:center;
 }
 
+/* Main buttons */
 button{
   padding:12px 20px;
   margin:10px;
@@ -84,14 +85,54 @@ button:active{transform:scale(.96)}
 
   display:flex;
   flex-direction:column;
+  pointer-events:auto;
 }
 
 .bar{
   height:30px;
   background:var(--bar);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 10px;
 }
 
-/* Perfect ASCII centering */
+/* Mac-style dots */
+.dots{
+  display:flex;
+  gap:6px;
+}
+
+.dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  cursor:pointer;
+}
+.dot.red{background:#ff5f57;}
+.dot.yellow{background:#febc2e;}
+.dot.green{background:#28c840;}
+
+/* Close button (NOT a <button>) */
+.closeBtn{
+  margin:0;
+  padding:0 8px;
+  height:22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  font-weight:900;
+  color:#cdd6ff;
+  cursor:pointer;
+  border-radius:6px;
+  user-select:none;
+}
+.closeBtn:hover{
+  background:#ffffff14;
+}
+
+/* ASCII heart */
 pre{
   margin:0;
   padding:10px;
@@ -127,10 +168,10 @@ pre{
 const desktop = document.getElementById("desktop");
 const card = document.getElementById("card");
 
-/* Symmetrical centered heart */
+/* HEART (UNCHANGED SHAPE) */
 const HEART = `
-  **       **  
- ******   ****** 
+***         *** 
+******   ****** 
 *************** 
 *************** 
  *************  
@@ -144,16 +185,36 @@ function rand(min,max){
   return Math.floor(Math.random()*(max-min+1))+min;
 }
 
+function closeWindow(win){
+  win.style.transition="transform .12s ease, opacity .12s ease";
+  win.style.transform="scale(0.95)";
+  win.style.opacity="0";
+  setTimeout(()=>win.remove(),120);
+}
+
 function makeTerminal(x,y){
-  const el = document.createElement("div");
+  const el=document.createElement("div");
   el.className="term";
   el.style.left=x+"px";
   el.style.top=y+"px";
 
-  el.innerHTML = `
-    <div class="bar"></div>
+  el.innerHTML=`
+    <div class="bar">
+      <div class="dots">
+        <span class="dot red"></span>
+        <span class="dot yellow"></span>
+        <span class="dot green"></span>
+      </div>
+      <span class="closeBtn">×</span>
+    </div>
     <pre></pre>
   `;
+
+  const closeBtn=el.querySelector(".closeBtn");
+  const redDot=el.querySelector(".dot.red");
+
+  closeBtn.addEventListener("click",()=>closeWindow(el));
+  redDot.addEventListener("click",()=>closeWindow(el));
 
   desktop.appendChild(el);
   return el;
@@ -162,7 +223,7 @@ function makeTerminal(x,y){
 function typeHeart(pre,speed=5){
   let i=0;
   const interval=setInterval(()=>{
-    pre.textContent += HEART[i] || "";
+    pre.textContent+=HEART[i]||"";
     i++;
     if(i>=HEART.length) clearInterval(interval);
   },speed);
@@ -173,8 +234,8 @@ function spawnStorm(count=20){
   const h=window.innerHeight;
 
   for(let i=0;i<count;i++){
-    const x=rand(20,w-360);
-    const y=rand(20,h-260);
+    const x=rand(20,Math.max(20,w-360));
+    const y=rand(20,Math.max(20,h-260));
     const t=makeTerminal(x,y);
     const pre=t.querySelector("pre");
 
@@ -186,7 +247,7 @@ function spawnStorm(count=20){
 
 document.getElementById("yesBtn").addEventListener("click",()=>{
   card.style.display="none";
-  spawnStorm(window.innerWidth < 600 ? 10 : 25);
+  spawnStorm(window.innerWidth<600?10:25);
 });
 
 document.getElementById("noBtn").addEventListener("click",()=>{

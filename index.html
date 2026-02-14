@@ -28,7 +28,7 @@ body{
   color:white;
 }
 
-/* Top toast message */
+/* Toast */
 #toast{
   position:fixed;
   top:18px;
@@ -36,30 +36,17 @@ body{
   transform:translateX(-50%);
   z-index:9999;
   pointer-events:none;
-
   background:#ffffff18;
   border:1px solid #ffffff2b;
   backdrop-filter: blur(10px);
   color:#fff;
-  padding:10px 14px;
+  padding:10px 16px;
   border-radius:999px;
   font-weight:900;
-  letter-spacing:.2px;
-
   opacity:0;
   transition: opacity .25s ease, transform .25s ease;
 }
-
-/* show state */
-#toast.show{
-  opacity:1;
-  transform:translateX(-50%) translateY(0);
-}
-
-/* subtle pop-in */
-#toast.pop{
-  transform:translateX(-50%) translateY(-2px);
-}
+#toast.show{ opacity:1; }
 
 /* Center card */
 .center{
@@ -70,41 +57,91 @@ body{
 }
 
 .card{
+  position:relative;
   background:#ffffff12;
   border:1px solid #ffffff22;
   border-radius:20px;
-  padding:28px;
+  padding:28px 28px 22px;
   backdrop-filter:blur(10px);
   text-align:center;
+  width:min(520px, 92vw);
 }
 
-button{
+.controls{
+  margin-top:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:18px;
+  position:relative;
+}
+
+/* Heart-shaped YES button */
+#yesBtn{
+  width:78px;
+  height:78px;
+  border:0;
+  cursor:pointer;
+  position:relative;
+  transform: rotate(-45deg) scale(1);
+  transition: transform .18s ease;
+  background: linear-gradient(135deg, var(--accent), #c9184a);
+  box-shadow: 0 14px 40px #00000088;
+}
+#yesBtn::before,
+#yesBtn::after{
+  content:"";
+  position:absolute;
+  width:78px;
+  height:78px;
+  background: inherit;
+  border-radius:50%;
+}
+#yesBtn::before{ top:-39px; left:0; }
+#yesBtn::after{ left:39px; top:0; }
+
+/* Add “YES” label on top */
+#yesLabel{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  transform: rotate(45deg);
+  font-weight:1000;
+  letter-spacing:.8px;
+  color:white;
+  text-shadow: 0 6px 20px #000000aa;
+  user-select:none;
+}
+
+/* NO button (normal at first) */
+#noBtn{
   padding:12px 20px;
-  margin:10px;
   border-radius:14px;
   border:1px solid #ffffff33;
   background:#ffffff14;
   color:white;
-  font-weight:800;
+  font-weight:900;
   cursor:pointer;
-  transition:.2s;
+  transition: transform .12s ease, background .2s ease;
+}
+#noBtn:hover{ background:#ffffff25; }
+#noBtn:active{ transform:scale(.96); }
+
+/* When NO becomes evasive */
+#noBtn.evasive{
+  position:fixed; /* lets it move anywhere on screen */
+  z-index:9998;
 }
 
-button:hover{background:#ffffff25}
-button:active{transform:scale(.96)}
-
-.yes{
-  background:linear-gradient(135deg,var(--accent),#c9184a);
-}
-
-/* Desktop area */
+/* Desktop */
 #desktop{
   position:absolute;
   inset:0;
   pointer-events:none;
 }
 
-/* Terminal windows */
+/* Terminals */
 .term{
   position:absolute;
   width:320px;
@@ -114,12 +151,10 @@ button:active{transform:scale(.96)}
   border-radius:14px;
   overflow:hidden;
   box-shadow:0 18px 50px #000000aa;
-
   display:flex;
   flex-direction:column;
   pointer-events:auto;
 }
-
 .bar{
   height:30px;
   background:var(--bar);
@@ -127,13 +162,7 @@ button:active{transform:scale(.96)}
   align-items:center;
   padding:0 10px;
 }
-
-/* Mac-style dots */
-.dots{
-  display:flex;
-  gap:6px;
-}
-
+.dots{ display:flex; gap:6px; }
 .dot{
   width:10px;
   height:10px;
@@ -144,7 +173,6 @@ button:active{transform:scale(.96)}
 .dot.yellow{background:#febc2e;}
 .dot.green{background:#28c840;}
 
-/* ASCII heart */
 pre{
   margin:0;
   padding:10px;
@@ -153,7 +181,6 @@ pre{
   line-height:1.05;
   white-space:pre;
   overflow:hidden;
-
   flex:1;
   display:flex;
   align-items:center;
@@ -165,13 +192,19 @@ pre{
 
 <body>
 
-<div id="toast" aria-live="polite"></div>
+<div id="toast"></div>
 
 <div class="center">
   <div class="card" id="card">
     <h1>Will you be my Valentine? 💘</h1>
-    <button class="yes" id="yesBtn">YES</button>
-    <button id="noBtn">NO</button>
+
+    <div class="controls" id="controls">
+      <button id="yesBtn" aria-label="Yes">
+        <span id="yesLabel">YES</span>
+      </button>
+
+      <button id="noBtn">NO</button>
+    </div>
   </div>
 </div>
 
@@ -181,8 +214,10 @@ pre{
 const desktop = document.getElementById("desktop");
 const card = document.getElementById("card");
 const toast = document.getElementById("toast");
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
 
-/* HEART (UNCHANGED SHAPE) */
+/* HEART ASCII */
 const HEART = `
 ***         *** 
 ******   ****** 
@@ -223,9 +258,7 @@ function makeTerminal(x,y){
     <pre></pre>
   `;
 
-  const redDot=el.querySelector(".dot.red");
-  redDot.addEventListener("click",()=>closeWindow(el));
-
+  el.querySelector(".dot.red").addEventListener("click",()=>closeWindow(el));
   desktop.appendChild(el);
   return el;
 }
@@ -249,42 +282,87 @@ function spawnStorm(count=20){
     const t=makeTerminal(x,y);
     const pre=t.querySelector("pre");
 
-    setTimeout(()=>{
-      typeHeart(pre,4);
-    },i*90);
+    setTimeout(()=>typeHeart(pre,4), i*90);
   }
 }
 
-/* Toast logic (shows message, fades after 2s, works every click) */
-const noMessages = ["Too bad.", "i hope ur jokinggg", "Incorrect!"];
+/* Toast logic — no repeat */
+const noMessages = ["Too bad.", "i hope ur jokinggg", "Incorrect!", ":("];
+let lastMessage = null;
 let toastTimer = null;
 
-function showToast(msg){
-  // reset any running timer + animation
-  if (toastTimer) clearTimeout(toastTimer);
-
-  toast.textContent = msg;
-
-  // Force reflow so repeated clicks re-trigger the transition
-  toast.classList.remove("show","pop");
-  void toast.offsetWidth;
-
-  toast.classList.add("show","pop");
-  setTimeout(()=>toast.classList.remove("pop"), 80);
-
-  toastTimer = setTimeout(()=>{
-    toast.classList.remove("show");
-  }, 2000);
+function getRandomMessage(){
+  let msg;
+  do { msg = noMessages[rand(0,noMessages.length-1)]; }
+  while (msg === lastMessage);
+  lastMessage = msg;
+  return msg;
 }
 
-document.getElementById("yesBtn").addEventListener("click",()=>{
+function showToast(msg){
+  if(toastTimer) clearTimeout(toastTimer);
+  toast.textContent = msg;
+
+  toast.classList.remove("show");
+  void toast.offsetWidth;
+  toast.classList.add("show");
+
+  toastTimer = setTimeout(()=>toast.classList.remove("show"), 2000);
+}
+
+/* YES grows with every NO */
+let noCount = 0;
+let yesScale = 1;
+
+function growYes(){
+  yesScale = Math.min(2.4, yesScale + 0.22);
+  yesBtn.style.transform = `rotate(-45deg) scale(${yesScale})`;
+}
+
+/* After 3 NO presses, NO becomes evasive */
+function moveNo(){
+  const pad = 12;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+
+  // Button size (use current layout)
+  const rect = noBtn.getBoundingClientRect();
+  const bw = rect.width || 80;
+  const bh = rect.height || 40;
+
+  const x = rand(pad, Math.max(pad, w - bw - pad));
+  const y = rand(pad, Math.max(pad, h - bh - pad));
+
+  noBtn.style.left = x + "px";
+  noBtn.style.top  = y + "px";
+}
+
+function enableEvasiveNo(){
+  if(noBtn.classList.contains("evasive")) return;
+  noBtn.classList.add("evasive");
+  // give it an initial move so it’s obviously “alive”
+  moveNo();
+
+  // make it dodge on hover too
+  noBtn.addEventListener("mouseenter", moveNo);
+}
+
+yesBtn.addEventListener("click",()=>{
+  // hide the whole card/menu
   card.style.display="none";
-  spawnStorm(window.innerWidth<600?10:25);
+  spawnStorm(window.innerWidth < 600 ? 10 : 25);
 });
 
-document.getElementById("noBtn").addEventListener("click",()=>{
-  const msg = noMessages[rand(0, noMessages.length-1)];
-  showToast(msg);
+noBtn.addEventListener("click",()=>{
+  noCount++;
+  showToast(getRandomMessage());
+  growYes();
+
+  if(noCount >= 3){
+    enableEvasiveNo();
+    // also jump immediately on click
+    moveNo();
+  }
 });
 </script>
 

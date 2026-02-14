@@ -84,14 +84,14 @@
     .dot.y{background:#febc2e}
     .dot.g{background:#28c840}
     pre{
-      margin:0;
-      padding:10px 12px;
-      color: var(--fg);
-      font-size:12px;
-      line-height:1.15;
-      white-space:pre;
-      overflow:hidden;
-    }
+  margin:0;
+  padding:10px 12px;
+  color: var(--fg);
+  font-size:12px;
+  line-height:1.15;
+  white-space:pre;     /* keep spacing */
+  overflow:auto;       /* <-- was overflow:hidden */
+}
     .fadeIn{animation: pop .18s ease-out}
     @keyframes pop{from{transform:scale(.98); opacity:.2} to{transform:scale(1); opacity:1}}
 

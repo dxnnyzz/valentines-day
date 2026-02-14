@@ -28,6 +28,39 @@ body{
   color:white;
 }
 
+/* Top toast message */
+#toast{
+  position:fixed;
+  top:18px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:9999;
+  pointer-events:none;
+
+  background:#ffffff18;
+  border:1px solid #ffffff2b;
+  backdrop-filter: blur(10px);
+  color:#fff;
+  padding:10px 14px;
+  border-radius:999px;
+  font-weight:900;
+  letter-spacing:.2px;
+
+  opacity:0;
+  transition: opacity .25s ease, transform .25s ease;
+}
+
+/* show state */
+#toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+/* subtle pop-in */
+#toast.pop{
+  transform:translateX(-50%) translateY(-2px);
+}
+
 /* Center card */
 .center{
   position:absolute;
@@ -132,6 +165,8 @@ pre{
 
 <body>
 
+<div id="toast" aria-live="polite"></div>
+
 <div class="center">
   <div class="card" id="card">
     <h1>Will you be my Valentine? 💘</h1>
@@ -143,9 +178,9 @@ pre{
 <div id="desktop"></div>
 
 <script>
-
 const desktop = document.getElementById("desktop");
 const card = document.getElementById("card");
+const toast = document.getElementById("toast");
 
 /* HEART (UNCHANGED SHAPE) */
 const HEART = `
@@ -220,15 +255,37 @@ function spawnStorm(count=20){
   }
 }
 
+/* Toast logic (shows message, fades after 2s, works every click) */
+const noMessages = ["Too bad.", "i hope ur jokinggg", "Incorrect!"];
+let toastTimer = null;
+
+function showToast(msg){
+  // reset any running timer + animation
+  if (toastTimer) clearTimeout(toastTimer);
+
+  toast.textContent = msg;
+
+  // Force reflow so repeated clicks re-trigger the transition
+  toast.classList.remove("show","pop");
+  void toast.offsetWidth;
+
+  toast.classList.add("show","pop");
+  setTimeout(()=>toast.classList.remove("pop"), 80);
+
+  toastTimer = setTimeout(()=>{
+    toast.classList.remove("show");
+  }, 2000);
+}
+
 document.getElementById("yesBtn").addEventListener("click",()=>{
   card.style.display="none";
   spawnStorm(window.innerWidth<600?10:25);
 });
 
 document.getElementById("noBtn").addEventListener("click",()=>{
-  card.innerHTML="<h1>Too bad 😤</h1><button class='yes' onclick='location.reload()'>Try Again</button>";
+  const msg = noMessages[rand(0, noMessages.length-1)];
+  showToast(msg);
 });
-
 </script>
 
 </body>

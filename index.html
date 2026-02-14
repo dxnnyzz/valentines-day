@@ -28,6 +28,7 @@ body{
   color:white;
 }
 
+/* Center card */
 .center{
   position:absolute;
   inset:0;
@@ -39,14 +40,14 @@ body{
   background:#ffffff12;
   border:1px solid #ffffff22;
   border-radius:20px;
-  padding:24px;
+  padding:28px;
   backdrop-filter:blur(10px);
   text-align:center;
 }
 
 button{
-  padding:12px 18px;
-  margin:8px;
+  padding:12px 20px;
+  margin:10px;
   border-radius:14px;
   border:1px solid #ffffff33;
   background:#ffffff14;
@@ -63,21 +64,26 @@ button:active{transform:scale(.96)}
   background:linear-gradient(135deg,var(--accent),#c9184a);
 }
 
+/* Desktop area */
 #desktop{
   position:absolute;
   inset:0;
   pointer-events:none;
 }
 
+/* Terminal windows */
 .term{
   position:absolute;
   width:320px;
-  height:220px;
+  height:240px;
   background:var(--win);
   border:1px solid var(--border);
   border-radius:14px;
   overflow:hidden;
   box-shadow:0 18px 50px #000000aa;
+
+  display:flex;
+  flex-direction:column;
 }
 
 .bar{
@@ -85,13 +91,21 @@ button:active{transform:scale(.96)}
   background:var(--bar);
 }
 
+/* Perfect ASCII centering */
 pre{
   margin:0;
-  padding:15px;
+  padding:10px;
   color:var(--fg);
-  font-size:14px;
+  font-size:15px;
+  line-height:1.05;
   white-space:pre;
-  overflow:auto;
+  overflow:hidden;
+
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:left;
 }
 </style>
 </head>
@@ -113,9 +127,11 @@ pre{
 const desktop = document.getElementById("desktop");
 const card = document.getElementById("card");
 
+/* Symmetrical centered heart */
 const HEART = `
-  **     **   
- ****** ****** 
+  **       **  
+ ******   ****** 
+*************** 
 *************** 
  *************  
   ***********   
@@ -143,7 +159,7 @@ function makeTerminal(x,y){
   return el;
 }
 
-function typeHeart(pre,speed=6){
+function typeHeart(pre,speed=5){
   let i=0;
   const interval=setInterval(()=>{
     pre.textContent += HEART[i] || "";
@@ -157,14 +173,14 @@ function spawnStorm(count=20){
   const h=window.innerHeight;
 
   for(let i=0;i<count;i++){
-    const x=rand(20,w-350);
+    const x=rand(20,w-360);
     const y=rand(20,h-260);
     const t=makeTerminal(x,y);
     const pre=t.querySelector("pre");
 
     setTimeout(()=>{
       typeHeart(pre,4);
-    },i*100);
+    },i*90);
   }
 }
 

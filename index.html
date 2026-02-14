@@ -1,149 +1,135 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>💘 Valentine</title>
-  <style>
-    :root{
-      --bg:#0b0b12; --fg:#d7ffd7; --muted:#9bd49b;
-      --win:#111723; --bar:#1b2232; --border:#2a3550; --accent:#ff4d6d;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; min-height:100vh; overflow:hidden;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      background: radial-gradient(900px 700px at 20% 20%, #3a1b5a 0%, transparent 60%),
-                  radial-gradient(900px 700px at 80% 20%, #7b1b3a 0%, transparent 55%),
-                  linear-gradient(140deg,#070710,#12061a);
-      color:#fff;
-    }
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>💘 Valentine</title>
 
-    .center{
-      position:absolute; inset:0; display:grid; place-items:center;
-      padding:20px;
-    }
-    .card{
-      width:min(720px, 94vw);
-      background:#ffffff12;
-      border:1px solid #ffffff22;
-      border-radius:22px;
-      padding:22px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 20px 70px #00000088;
-    }
-    h1{margin:0 0 10px; font-size: clamp(22px, 4vw, 36px);}
-    p{margin:10px 0; color:#ffffffdd; line-height:1.45}
-    .row{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
-    button{
-      border:1px solid #ffffff33;
-      background:#ffffff14;
-      color:#fff;
-      padding:12px 14px;
-      border-radius:14px;
-      font-weight:800;
-      cursor:pointer;
-      transition: transform .08s ease, background .2s ease;
-    }
-    button:hover{background:#ffffff1f}
-    button:active{transform: translateY(1px) scale(.99)}
-    .yes{background: linear-gradient(135deg, var(--accent), #c9184a); border-color:#ffffff33;}
-    .no{opacity:.9}
-    .hint{font-size:12px; color:#ffffffaa; margin-top:10px}
+<style>
+:root{
+  --bg:#0b0b12;
+  --fg:#d7ffd7;
+  --win:#111723;
+  --bar:#1b2232;
+  --border:#2a3550;
+  --accent:#ff4d6d;
+}
 
-    /* Fake terminal windows */
-    #desktop{
-      position:absolute; inset:0;
-      pointer-events:none;
-    }
-    .term{
-      position:absolute;
-      width: min(360px, 80vw);
-      height: 220px;
-      background: var(--win);
-      border:1px solid var(--border);
-      border-radius:14px;
-      overflow:hidden;
-      box-shadow: 0 18px 50px #000000aa;
-      pointer-events:none;
-    }
-    .bar{
-      height:34px;
-      background: var(--bar);
-      border-bottom:1px solid var(--border);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:0 10px;
-      color:#cdd6ff;
-      font-size:12px;
-    }
-    .dots{display:flex; gap:6px}
-    .dot{width:10px; height:10px; border-radius:50%}
-    .dot.r{background:#ff5f57}
-    .dot.y{background:#febc2e}
-    .dot.g{background:#28c840}
-    pre{
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  overflow:hidden;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background:
+    radial-gradient(900px 700px at 20% 20%, #3a1b5a 0%, transparent 60%),
+    radial-gradient(900px 700px at 80% 20%, #7b1b3a 0%, transparent 55%),
+    linear-gradient(140deg,#070710,#12061a);
+  color:#fff;
+}
+
+.center{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  padding:20px;
+}
+
+.card{
+  width:min(720px, 94vw);
+  background:#ffffff12;
+  border:1px solid #ffffff22;
+  border-radius:22px;
+  padding:22px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 70px #00000088;
+  text-align:center;
+}
+
+h1{margin:0 0 10px; font-size: clamp(22px, 4vw, 36px);}
+p{margin:10px 0; color:#ffffffdd;}
+
+.row{display:flex; gap:10px; flex-wrap:wrap; justify-content:center;}
+
+button{
+  border:1px solid #ffffff33;
+  background:#ffffff14;
+  color:#fff;
+  padding:12px 16px;
+  border-radius:14px;
+  font-weight:800;
+  cursor:pointer;
+  transition:transform .1s ease, background .2s ease;
+}
+
+button:hover{background:#ffffff1f}
+button:active{transform:scale(.98)}
+
+.yes{
+  background: linear-gradient(135deg, var(--accent), #c9184a);
+}
+
+#desktop{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+
+.term{
+  position:absolute;
+  width:340px;
+  height:230px;
+  background:var(--win);
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow: 0 18px 50px #000000aa;
+}
+
+.bar{
+  height:34px;
+  background:var(--bar);
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  color:#cdd6ff;
+}
+
+pre{
   margin:0;
   padding:10px 12px;
-  color: var(--fg);
+  color:var(--fg);
   font-size:12px;
   line-height:1.15;
-  white-space:pre;     /* keep spacing */
-  overflow:auto;       /* <-- was overflow:hidden */
+  white-space:pre;
+  overflow:auto;
 }
-    .fadeIn{animation: pop .18s ease-out}
-    @keyframes pop{from{transform:scale(.98); opacity:.2} to{transform:scale(1); opacity:1}}
-
-    /* Hearts floating (extra cute) */
-    .float-heart{
-      position:absolute;
-      bottom:-40px;
-      font-size:18px;
-      animation: floatUp linear forwards;
-      filter: drop-shadow(0 4px 10px #00000088);
-      opacity:.95;
-      pointer-events:none;
-    }
-    @keyframes floatUp{
-      to{transform: translateY(-120vh) translateX(var(--dx)); opacity:0.95}
-    }
-  </style>
+</style>
 </head>
+
 <body>
-  <div class="center">
-    <div class="card" id="card">
-      <h1>Will you be my Valentine? 💘</h1>
-      <p>Choose wisely… there may be a highly technical love deployment.</p>
-      <div class="row">
-        <button class="yes" id="yesBtn">YES ✅</button>
-        <button class="no" id="noBtn">NO ❌</button>
-        <button id="nameBtn">Add your name ✍️</button>
-      </div>
-      <div class="hint" id="hint">Tip: host this as a link (GitHub Pages/Netlify) and send it.</div>
+
+<div class="center">
+  <div class="card" id="card">
+    <h1>Will you be my Valentine? 💘</h1>
+    <p>Choose wisely… a technical love deployment may occur.</p>
+    <div class="row">
+      <button class="yes" id="yesBtn">YES ✅</button>
+      <button id="noBtn">NO ❌</button>
     </div>
   </div>
+</div>
 
-  <div id="desktop"></div>
+<div id="desktop"></div>
 
-  <script>
-    const desktop = document.getElementById('desktop');
-    const card = document.getElementById('card');
-    const hint = document.getElementById('hint');
+<script>
 
-    let fromName = "— from me ❤️";
-    document.getElementById("nameBtn").addEventListener("click", () => {
-      const n = prompt("Your name (shown at the end):") || "";
-      fromName = n.trim() ? `— ${n.trim()} ❤️` : "— from me ❤️";
-      hint.textContent = "Name updated ✅";
-    });
-
-    const HEART = `
-  _  _
- ( \\/ )
-  \\  /
-   \\/
-`.trimEnd();
+const desktop = document.getElementById("desktop");
+const card = document.getElementById("card");
 
 const BIG_HEART = `
   **     **   
@@ -156,42 +142,41 @@ const BIG_HEART = `
        *        
 `.trimEnd();
 
-    function rand(min, max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function rand(min,max){
+  return Math.floor(Math.random()*(max-min+1))+min;
+}
 
-    function makeTerminal(x, y, title="C:\\\\Windows\\\\System32\\\\cmd.exe"){
-      const el = document.createElement('div');
-      el.className = "term fadeIn";
-      el.style.left = x + "px";
-      el.style.top  = y + "px";
-      el.innerHTML = `
-        <div class="bar">
-          <div class="dots">
-            <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-          </div>
-          <div>${title}</div>
-          <div style="width:42px"></div>
-        </div>
-        <pre></pre>
-      `;
-      desktop.appendChild(el);
-      return el;
-    }
+function makeTerminal(x,y){
+  const el = document.createElement("div");
+  el.className="term";
+  el.style.left=x+"px";
+  el.style.top=y+"px";
 
-    function typeInto(pre, text, speed=10){
-      let i = 0;
-      const timer = setInterval(() => {
-        pre.textContent += text[i++] || "";
-        if(i >= text.length) clearInterval(timer);
-        pre.scrollTop = pre.scrollHeight;
-      }, speed);
-    }
+  el.innerHTML = `
+    <div class="bar">C:\\Windows\\System32\\cmd.exe</div>
+    <pre></pre>
+  `;
 
-    function terminalScript(){
-  const lines = [
+  desktop.appendChild(el);
+  return el;
+}
+
+function typeInto(pre,text,speed=8){
+  let i=0;
+  const interval=setInterval(()=>{
+    pre.textContent += text[i] || "";
+    i++;
+    pre.scrollTop = pre.scrollHeight;
+    if(i>=text.length) clearInterval(interval);
+  },speed);
+}
+
+function terminalScript(){
+  const lines=[
     "Microsoft Windows [Version 10.0.19045.0]",
     "(c) Microsoft Corporation. All rights reserved.",
     "",
-    "C:\\> love.exe --target=valentine --mode=maximum",
+    "C:\\> love.exe --deploy",
     "Loading feelings... OK",
     "Compiling hugs... OK",
     "Linking kisses... OK",
@@ -199,67 +184,37 @@ const BIG_HEART = `
     BIG_HEART,
     "",
     "SUCCESS: You are my Valentine 💘",
-    fromName
+    ""
   ];
   return lines.join("\n");
 }
 
-    function spawnFakeCmdStorm(count=10){
-      const w = window.innerWidth, h = window.innerHeight;
-      for(let i=0;i<count;i++){
-        const x = rand(10, Math.max(10, w-380));
-        const y = rand(10, Math.max(10, h-240));
-        const t = makeTerminal(x, y);
-        const pre = t.querySelector('pre');
-        // stagger
-        setTimeout(() => typeInto(pre, terminalScript(), rand(4, 14)), i * 120);
-      }
-    }
+function spawnStorm(count=15){
+  const w=window.innerWidth;
+  const h=window.innerHeight;
 
-    function floatHearts(durationMs=6000){
-      const emojis = ["💗","💖","💘","💝","💕","❤️"];
-      const start = Date.now();
-      const interval = setInterval(() => {
-        const s = document.createElement("div");
-        s.className = "float-heart";
-        s.textContent = emojis[rand(0, emojis.length-1)];
-        s.style.left = rand(0, window.innerWidth) + "px";
-        s.style.setProperty("--dx", rand(-120, 120) + "px");
-        s.style.animationDuration = rand(3500, 7000) + "ms";
-        document.body.appendChild(s);
-        setTimeout(()=>s.remove(), 8000);
-        if(Date.now() - start > durationMs) clearInterval(interval);
-      }, 90);
-    }
+  for(let i=0;i<count;i++){
+    const x=rand(20,w-380);
+    const y=rand(20,h-260);
+    const t=makeTerminal(x,y);
+    const pre=t.querySelector("pre");
 
-    function noBounce(){
-      card.style.transform = "translateY(-2px)";
-      card.style.transition = "transform .12s ease";
-      setTimeout(() => card.style.transform = "translateY(0px)", 140);
-    }
+    setTimeout(()=>{
+      typeInto(pre,terminalScript(),6);
+    },i*120);
+  }
+}
 
-    document.getElementById("yesBtn").addEventListener("click", () => {
-      card.innerHTML = `
-        <h1>✅ ACCEPTED 💘</h1>
-        <p>Initializing romantic command prompt overload… (safe edition)</p>
-        <p style="opacity:.85">P.S. This doesn’t open real CMD windows—just cute fake ones in the page.</p>
-      `;
-      // “Lots” but not insane. You can change 12 -> 25 if you want.
-      spawnFakeCmdStorm(12);
-      floatHearts(8000);
-    });
+document.getElementById("yesBtn").addEventListener("click",()=>{
+  card.innerHTML="<h1>Deployment Accepted 💘</h1><p>Initializing romantic overload...</p>";
+  spawnStorm(window.innerWidth < 600 ? 8 : 18);
+});
 
-    document.getElementById("noBtn").addEventListener("click", () => {
-      noBounce();
-      card.innerHTML = `
-        <h1>😤 Denied.</h1>
-        <p>Okay… but I’m still sending you a heart.</p>
-        <pre style="background:#00000022;border:1px solid #ffffff22;border-radius:14px;padding:12px;color:#ffd6e0">${HEART}</pre>
-        <p>${fromName}</p>
-        <div class="row"><button class="yes" onclick="location.reload()">Try again 😇</button></div>
-      `;
-      floatHearts(3000);
-    });
-  </script>
+document.getElementById("noBtn").addEventListener("click",()=>{
+  card.innerHTML="<h1>😤 Denied.</h1><p>Too bad. You're still my Valentine.</p><button class='yes' onclick='location.reload()'>Try Again</button>";
+});
+
+</script>
+
 </body>
 </html>

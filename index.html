@@ -28,7 +28,7 @@ body{
   color:white;
 }
 
-/* Toast */
+/* Toast with image */
 #toast{
   position:fixed;
   top:18px;
@@ -36,17 +36,29 @@ body{
   transform:translateX(-50%);
   z-index:9999;
   pointer-events:none;
+
+  display:flex;
+  align-items:center;
+  gap:10px;
+
   background:#ffffff18;
   border:1px solid #ffffff2b;
   backdrop-filter: blur(10px);
-  color:#fff;
-  padding:10px 16px;
+  padding:8px 14px;
   border-radius:999px;
   font-weight:900;
+
   opacity:0;
-  transition: opacity .25s ease, transform .25s ease;
+  transition:opacity .25s ease;
 }
+
 #toast.show{ opacity:1; }
+
+#toast img{
+  width:28px;
+  height:28px;
+  object-fit:contain;
+}
 
 /* Center card */
 .center{
@@ -57,81 +69,31 @@ body{
 }
 
 .card{
-  position:relative;
   background:#ffffff12;
   border:1px solid #ffffff22;
   border-radius:20px;
-  padding:28px 28px 22px;
+  padding:28px;
   backdrop-filter:blur(10px);
   text-align:center;
-  width:min(520px, 92vw);
 }
 
-.controls{
-  margin-top:16px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:18px;
-  position:relative;
-}
-
-/* Heart-shaped YES button */
-#yesBtn{
-  width:78px;
-  height:78px;
-  border:0;
-  cursor:pointer;
-  position:relative;
-  transform: rotate(-45deg) scale(1);
-  transition: transform .18s ease;
-  background: linear-gradient(135deg, var(--accent), #c9184a);
-  box-shadow: 0 14px 40px #00000088;
-}
-#yesBtn::before,
-#yesBtn::after{
-  content:"";
-  position:absolute;
-  width:78px;
-  height:78px;
-  background: inherit;
-  border-radius:50%;
-}
-#yesBtn::before{ top:-39px; left:0; }
-#yesBtn::after{ left:39px; top:0; }
-
-/* Add “YES” label on top */
-#yesLabel{
-  position:absolute;
-  inset:0;
-  display:grid;
-  place-items:center;
-  transform: rotate(45deg);
-  font-weight:1000;
-  letter-spacing:.8px;
-  color:white;
-  text-shadow: 0 6px 20px #000000aa;
-  user-select:none;
-}
-
-/* NO button (normal at first) */
-#noBtn{
-  padding:12px 20px;
+button{
+  padding:12px 22px;
+  margin:10px;
   border-radius:14px;
   border:1px solid #ffffff33;
   background:#ffffff14;
   color:white;
   font-weight:900;
   cursor:pointer;
-  transition: transform .12s ease, background .2s ease;
+  transition:transform .2s ease, background .2s ease;
 }
-#noBtn:hover{ background:#ffffff25; }
-#noBtn:active{ transform:scale(.96); }
 
-/* When NO becomes evasive */
-#noBtn.evasive{
-  position:fixed; /* lets it move anywhere on screen */
-  z-index:9998;
+button:hover{ background:#ffffff25; }
+button:active{ transform:scale(.96); }
+
+.yes{
+  background:linear-gradient(135deg,var(--accent),#c9184a);
 }
 
 /* Desktop */
@@ -155,6 +117,7 @@ body{
   flex-direction:column;
   pointer-events:auto;
 }
+
 .bar{
   height:30px;
   background:var(--bar);
@@ -162,6 +125,7 @@ body{
   align-items:center;
   padding:0 10px;
 }
+
 .dots{ display:flex; gap:6px; }
 .dot{
   width:10px;
@@ -187,24 +151,28 @@ pre{
   justify-content:center;
   text-align:left;
 }
+
+/* Smooth movement */
+#noBtn.evasive{
+  position:fixed;
+  z-index:9998;
+  transition:left .6s ease, top .6s ease;
+}
 </style>
 </head>
 
 <body>
 
-<div id="toast"></div>
+<div id="toast">
+  <img id="toastImg" src="">
+  <span id="toastText"></span>
+</div>
 
 <div class="center">
   <div class="card" id="card">
     <h1>Will you be my Valentine? 💘</h1>
-
-    <div class="controls" id="controls">
-      <button id="yesBtn" aria-label="Yes">
-        <span id="yesLabel">YES</span>
-      </button>
-
-      <button id="noBtn">NO</button>
-    </div>
+    <button class="yes" id="yesBtn">YES</button>
+    <button id="noBtn">NO</button>
   </div>
 </div>
 
@@ -214,10 +182,12 @@ pre{
 const desktop = document.getElementById("desktop");
 const card = document.getElementById("card");
 const toast = document.getElementById("toast");
+const toastImg = document.getElementById("toastImg");
+const toastText = document.getElementById("toastText");
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
 
-/* HEART ASCII */
+/* HEART */
 const HEART = `
 ***         *** 
 ******   ****** 
@@ -258,7 +228,9 @@ function makeTerminal(x,y){
     <pre></pre>
   `;
 
-  el.querySelector(".dot.red").addEventListener("click",()=>closeWindow(el));
+  el.querySelector(".dot.red")
+    .addEventListener("click",()=>closeWindow(el));
+
   desktop.appendChild(el);
   return el;
 }
@@ -286,81 +258,86 @@ function spawnStorm(count=20){
   }
 }
 
-/* Toast logic — no repeat */
-const noMessages = ["Too bad.", "i hope ur jokinggg", "Incorrect!", ":("];
-let lastMessage = null;
+/* Messages + matching images */
+const variants = [
+  { text:"Too bad.", img:"img1.png" },
+  { text:"i hope ur jokinggg", img:"img2.png" },
+  { text:"Incorrect!", img:"img3.png" },
+  { text:":(", img:"img4.png" }
+];
+
+let lastIndex = -1;
 let toastTimer = null;
 
-function getRandomMessage(){
-  let msg;
-  do { msg = noMessages[rand(0,noMessages.length-1)]; }
-  while (msg === lastMessage);
-  lastMessage = msg;
-  return msg;
+function getVariant(){
+  let i;
+  do{
+    i = rand(0, variants.length-1);
+  }while(i === lastIndex);
+  lastIndex = i;
+  return variants[i];
 }
 
-function showToast(msg){
+function showToast(){
   if(toastTimer) clearTimeout(toastTimer);
-  toast.textContent = msg;
+
+  const v = getVariant();
+  toastText.textContent = v.text;
+  toastImg.src = v.img;
 
   toast.classList.remove("show");
   void toast.offsetWidth;
   toast.classList.add("show");
 
-  toastTimer = setTimeout(()=>toast.classList.remove("show"), 2000);
+  toastTimer = setTimeout(()=>{
+    toast.classList.remove("show");
+  },2000);
 }
 
-/* YES grows with every NO */
-let noCount = 0;
+/* YES grows */
 let yesScale = 1;
-
 function growYes(){
-  yesScale = Math.min(2.4, yesScale + 0.22);
-  yesBtn.style.transform = `rotate(-45deg) scale(${yesScale})`;
+  yesScale = Math.min(2.5, yesScale + 0.2);
+  yesBtn.style.transform = `scale(${yesScale})`;
 }
 
-/* After 3 NO presses, NO becomes evasive */
+/* NO movement */
+let noCount = 0;
+
 function moveNo(){
-  const pad = 12;
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-
-  // Button size (use current layout)
+  const pad = 10;
   const rect = noBtn.getBoundingClientRect();
-  const bw = rect.width || 80;
-  const bh = rect.height || 40;
+  const bw = rect.width;
+  const bh = rect.height;
 
-  const x = rand(pad, Math.max(pad, w - bw - pad));
-  const y = rand(pad, Math.max(pad, h - bh - pad));
+  const maxX = window.innerWidth - bw - pad;
+  const maxY = window.innerHeight - bh - pad;
+
+  const x = rand(pad, maxX);
+  const y = rand(pad, maxY);
 
   noBtn.style.left = x + "px";
   noBtn.style.top  = y + "px";
 }
 
-function enableEvasiveNo(){
+function enableEvasive(){
   if(noBtn.classList.contains("evasive")) return;
   noBtn.classList.add("evasive");
-  // give it an initial move so it’s obviously “alive”
   moveNo();
-
-  // make it dodge on hover too
-  noBtn.addEventListener("mouseenter", moveNo);
 }
 
 yesBtn.addEventListener("click",()=>{
-  // hide the whole card/menu
   card.style.display="none";
-  spawnStorm(window.innerWidth < 600 ? 10 : 25);
+  spawnStorm(window.innerWidth<600?10:25);
 });
 
 noBtn.addEventListener("click",()=>{
   noCount++;
-  showToast(getRandomMessage());
+  showToast();
   growYes();
 
   if(noCount >= 3){
-    enableEvasiveNo();
-    // also jump immediately on click
+    enableEvasive();
     moveNo();
   }
 });

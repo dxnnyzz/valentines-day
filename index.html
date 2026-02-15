@@ -434,10 +434,17 @@ function showToast(){
 
 /* YES grows */
 let yesScale = 1;
+
 function growYes(){
-  yesScale = Math.min(2.5, yesScale + 0.2);
+  // Exponential growth instead of linear
+  yesScale = Math.min(8, yesScale * 1.6);
+
   yesBtn.style.transform = `scale(${yesScale})`;
+
+  // Add dramatic bounce effect
+  yesBtn.style.transition = "transform .25s cubic-bezier(.2,1.5,.4,1)";
 }
+
 
 /* NO movement */
 let noCount = 0;

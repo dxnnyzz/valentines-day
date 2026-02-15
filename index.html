@@ -28,10 +28,10 @@ body{
   color:white;
 }
 
-/* 🔥 Bigger Toast */
+/* Toast with image */
 #toast{
   position:fixed;
-  top:22px;
+  top:18px;
   left:50%;
   transform:translateX(-50%);
   z-index:9999;
@@ -39,25 +39,22 @@ body{
 
   display:flex;
   align-items:center;
-  gap:16px;
+  gap:10px;
 
   background:#ffffff18;
   border:1px solid #ffffff2b;
-  backdrop-filter: blur(12px);
-
-  padding:16px 26px;
+  backdrop-filter: blur(10px);
+  padding:8px 14px;
   border-radius:999px;
-  font-weight:1000;
-  font-size:22px;
+  font-weight:900;
 
   opacity:0;
   transition:opacity .25s ease;
 }
 #toast.show{ opacity:1; }
-
 #toast img{
-  width:60px;
-  height:60px;
+  width:28px;
+  height:28px;
   object-fit:contain;
 }
 
@@ -116,7 +113,7 @@ button:active{ transform:scale(.96); }
   display:flex;
   flex-direction:column;
   pointer-events:auto;
-  z-index:50;
+  z-index:50; /* above background love text */
 }
 
 .bar{
@@ -152,6 +149,7 @@ pre{
   text-align:left;
 }
 
+/* Smooth movement for evasive NO */
 #noBtn.evasive{
   position:fixed;
   z-index:9998;
@@ -159,47 +157,43 @@ pre{
   transform:none;
 }
 
-/* Center love text */
-#loveCenter{
+/* Background love text behind terminals */
+#loveBgTop, #loveBgBottom{
   position:fixed;
   left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
-  z-index:5;
-  pointer-events:none;
-  text-align:center;
-  font-weight:1000;
-  color:#ffffffc2;
-  text-shadow: 0 10px 30px #000000aa;
-  opacity:0;
-  transition: opacity .25s ease;
-  font-size: clamp(24px, 4vw, 48px);
-}
-#loveCenter.show{ opacity:1; }
-
-#loveBottom{
-  position:fixed;
-  left:50%;
-  bottom:22px;
   transform:translateX(-50%);
-  z-index:5;
+  z-index:5;            /* behind terminals */
   pointer-events:none;
   text-align:center;
   font-weight:1000;
-  color:#ffffffad;
+  letter-spacing:.4px;
+  color:#ffffffb8;
   text-shadow: 0 10px 30px #000000aa;
   opacity:0;
   transition: opacity .25s ease;
-  font-size: clamp(16px, 2.5vw, 24px);
 }
-#loveBottom.show{ opacity:1; }
 
+#loveBgTop{
+  top:26px;
+  font-size: clamp(18px, 3vw, 34px);
+}
+#loveBgBottom{
+  bottom:22px;
+  font-size: clamp(14px, 2.3vw, 22px);
+  color:#ffffffa8;
+}
+
+#loveBgTop.show, #loveBgBottom.show{
+  opacity:1;
+}
+
+/* Right-side flowers button */
 #flowersBtn{
   position:fixed;
   right:18px;
   top:50%;
   transform:translateY(-50%);
-  z-index:6;
+  z-index:60;
   margin:0;
 
   padding:12px 16px;
@@ -212,14 +206,16 @@ pre{
 
   opacity:0;
   pointer-events:none;
-  transition: opacity .25s ease;
+  transition: opacity .25s ease, transform .25s ease, background .2s ease;
 }
 #flowersBtn.show{
   opacity:1;
   pointer-events:auto;
 }
+#flowersBtn:hover{ background:#ffffff25; }
+#flowersBtn:active{ transform:translateY(-50%) scale(.96); }
 
-/* Final message */
+/* Final centered message screen */
 #finalScreen{
   position:fixed;
   inset:0;
@@ -230,36 +226,21 @@ pre{
   opacity:0;
   transition: opacity .25s ease;
 }
-#finalScreen.show{ opacity:1; }
+#finalScreen.show{
+  opacity:1;
+}
 #finalScreen .finalCard{
+  pointer-events:none;
   background:#ffffff12;
   border:1px solid #ffffff22;
   border-radius:22px;
-  padding:30px;
-  backdrop-filter: blur(12px);
+  padding:26px 22px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 70px #00000088;
   text-align:center;
+  width:min(560px, 92vw);
   font-weight:1000;
-  font-size: clamp(24px, 4vw, 40px);
-}
-
-/* 🌹 Rose confetti */
-#roseConfetti{
-  position:fixed;
-  inset:0;
-  z-index:120;
-  pointer-events:none;
-  overflow:hidden;
-}
-.rose{
-  position:absolute;
-  top:-40px;
-  font-size:26px;
-  animation: fall var(--dur) linear forwards;
-}
-@keyframes fall{
-  to{
-    transform: translate3d(var(--dx), calc(100vh + 80px), 0) rotate(var(--rot));
-  }
+  font-size: clamp(20px, 3.2vw, 34px);
 }
 </style>
 </head>
@@ -267,20 +248,20 @@ pre{
 <body>
 
 <div id="toast">
-  <img id="toastImg" src="">
+  <img id="toastImg" src="" alt="">
   <span id="toastText"></span>
 </div>
 
 <div class="center" id="menu">
-  <div class="card">
+  <div class="card" id="card">
     <h1>Will you be my Valentine? 💘</h1>
     <button class="yes" id="yesBtn">YES</button>
     <button id="noBtn">NO</button>
   </div>
 </div>
 
-<div id="loveCenter">i love you babe! happy valentines day!</div>
-<div id="loveBottom">-danny, your valentine.</div>
+<div id="loveBgTop">i love you babe! happy valentines day!</div>
+<div id="loveBgBottom">-danny, your valentine.</div>
 
 <button id="flowersBtn">wheres my flowers?</button>
 
@@ -288,11 +269,244 @@ pre{
   <div class="finalCard">flowers are on your way!</div>
 </div>
 
-<div id="roseConfetti"></div>
 <div id="desktop"></div>
 
 <script>
-/* JS unchanged from previous version except for toast sizing — keeping everything stable */
+const desktop = document.getElementById("desktop");
+const menu = document.getElementById("menu");
+const card = document.getElementById("card");
+const toast = document.getElementById("toast");
+const toastImg = document.getElementById("toastImg");
+const toastText = document.getElementById("toastText");
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+const loveBgTop = document.getElementById("loveBgTop");
+const loveBgBottom = document.getElementById("loveBgBottom");
+const flowersBtn = document.getElementById("flowersBtn");
+const finalScreen = document.getElementById("finalScreen");
+
+/* HEART */
+const HEART = `
+***         *** 
+******   ****** 
+*************** 
+*************** 
+ *************  
+  ***********   
+    *******     
+      ***       
+       *        
+`.trim();
+
+function rand(min,max){
+  return Math.floor(Math.random()*(max-min+1))+min;
+}
+function clamp(n, min, max){
+  return Math.max(min, Math.min(max, n));
+}
+
+function closeWindow(win){
+  win.style.transition="transform .12s ease, opacity .12s ease";
+  win.style.transform="scale(0.95)";
+  win.style.opacity="0";
+  setTimeout(()=>win.remove(),120);
+}
+
+function makeTerminal(x,y){
+  const el=document.createElement("div");
+  el.className="term";
+  el.style.left=x+"px";
+  el.style.top=y+"px";
+
+  el.innerHTML=`
+    <div class="bar">
+      <div class="dots">
+        <span class="dot red"></span>
+        <span class="dot yellow"></span>
+        <span class="dot green"></span>
+      </div>
+    </div>
+    <pre></pre>
+  `;
+
+  el.querySelector(".dot.red")
+    .addEventListener("click",()=>closeWindow(el));
+
+  desktop.appendChild(el);
+  return el;
+}
+
+function typeHeart(pre,speed=5){
+  let i=0;
+  const interval=setInterval(()=>{
+    pre.textContent+=HEART[i]||"";
+    i++;
+    if(i>=HEART.length) clearInterval(interval);
+  },speed);
+}
+
+function spawnStorm(count=20){
+  const w=window.innerWidth;
+  const h=window.innerHeight;
+
+  for(let i=0;i<count;i++){
+    const x=rand(20,Math.max(20,w-360));
+    const y=rand(90,Math.max(90,h-260)); // keep away from top toast/love text a bit
+    const t=makeTerminal(x,y);
+    const pre=t.querySelector("pre");
+    setTimeout(()=>typeHeart(pre,4), i*90);
+  }
+}
+
+/* Messages + matching images (put these 4 files in your repo root) */
+const variants = [
+  { text:"Too bad.", img:"img1.png" },
+  { text:"i hope ur jokinggg", img:"img2.png" },
+  { text:"Incorrect!", img:"img3.png" },
+  { text:":(", img:"img4.png" }
+];
+
+let lastIndex = -1;
+let toastTimer = null;
+
+function getVariant(){
+  let i;
+  do{
+    i = rand(0, variants.length-1);
+  }while(i === lastIndex);
+  lastIndex = i;
+  return variants[i];
+}
+
+function showToast(){
+  if(toastTimer) clearTimeout(toastTimer);
+
+  const v = getVariant();
+  toastText.textContent = v.text;
+  toastImg.src = v.img;
+
+  toast.classList.remove("show");
+  void toast.offsetWidth;
+  toast.classList.add("show");
+
+  toastTimer = setTimeout(()=>{
+    toast.classList.remove("show");
+  },2000);
+}
+
+/* YES grows */
+let yesScale = 1;
+function growYes(){
+  yesScale = Math.min(2.5, yesScale + 0.2);
+  yesBtn.style.transform = `scale(${yesScale})`;
+}
+
+/* NO movement */
+let noCount = 0;
+
+function moveNo(){
+  const pad = 12;
+  const avoidTop = 70;
+
+  const rect = noBtn.getBoundingClientRect();
+  const bw = rect.width || 90;
+  const bh = rect.height || 44;
+
+  const maxX = Math.max(pad, window.innerWidth - bw - pad);
+  const maxY = Math.max(avoidTop, window.innerHeight - bh - pad);
+
+  const x = rand(pad, maxX);
+  const y = rand(avoidTop, maxY);
+
+  noBtn.style.left = clamp(x, pad, maxX) + "px";
+  noBtn.style.top  = clamp(y, avoidTop, maxY) + "px";
+}
+
+function enableEvasive(){
+  if(noBtn.classList.contains("evasive")) return;
+
+  noBtn.classList.add("evasive");
+
+  // Detach to body so fixed positioning is reliable
+  document.body.appendChild(noBtn);
+
+  // Safe starting point
+  noBtn.style.left = "50%";
+  noBtn.style.top  = "60%";
+  noBtn.style.transform = "translate(-50%, -50%)";
+
+  requestAnimationFrame(() => {
+    noBtn.style.transform = "";
+    moveNo();
+  });
+
+  noBtn.addEventListener("mouseenter", moveNo);
+}
+
+/* Clear everything and show final message */
+function clearEverythingAndShowFinal(){
+  // remove all terminals
+  desktop.innerHTML = "";
+
+  // hide bg text
+  loveBgTop.classList.remove("show");
+  loveBgBottom.classList.remove("show");
+
+  // hide toast if visible
+  toast.classList.remove("show");
+
+  // hide flowers button
+  flowersBtn.classList.remove("show");
+  flowersBtn.style.pointerEvents = "none";
+
+  // also ensure no lingering buttons
+  if (noBtn) noBtn.style.display = "none";
+  if (yesBtn) yesBtn.style.display = "none";
+
+  // show final
+  finalScreen.classList.add("show");
+}
+
+/* YES click */
+yesBtn.addEventListener("click",()=>{
+  // hide menu
+  menu.style.display="none";
+
+  // ensure NO disappears even if it got detached to body
+  noBtn.style.display = "none";
+
+  // show background love text
+  loveBgTop.classList.add("show");
+  loveBgBottom.classList.add("show");
+
+  // show flowers button
+  flowersBtn.classList.add("show");
+
+  // spawn terminals
+  spawnStorm(window.innerWidth<600?10:25);
+});
+
+/* NO click */
+noBtn.addEventListener("click",()=>{
+  noCount++;
+  showToast();
+  growYes();
+
+  if(noCount >= 3){
+    enableEvasive();
+    moveNo();
+  }
+});
+
+/* Keep NO on-screen if resized/rotated */
+window.addEventListener("resize", () => {
+  if(noBtn.classList.contains("evasive")) moveNo();
+});
+
+/* Flowers button */
+flowersBtn.addEventListener("click", () => {
+  clearEverythingAndShowFinal();
+});
 </script>
 
 </body>

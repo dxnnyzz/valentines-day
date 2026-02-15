@@ -113,7 +113,7 @@ button:active{ transform:scale(.96); }
   display:flex;
   flex-direction:column;
   pointer-events:auto;
-  z-index:50; /* above background love text */
+  z-index:50; /* above love text & flowers */
 }
 
 .bar{
@@ -157,43 +157,52 @@ pre{
   transform:none;
 }
 
-/* Background love text behind terminals */
-#loveBgTop, #loveBgBottom{
+/* Center love text behind terminals */
+#loveCenter{
   position:fixed;
   left:50%;
-  transform:translateX(-50%);
+  top:50%;
+  transform:translate(-50%,-50%);
   z-index:5;            /* behind terminals */
   pointer-events:none;
   text-align:center;
   font-weight:1000;
   letter-spacing:.4px;
-  color:#ffffffb8;
+  color:#ffffffc2;
   text-shadow: 0 10px 30px #000000aa;
   opacity:0;
   transition: opacity .25s ease;
+  font-size: clamp(20px, 3.6vw, 44px);
+  width:min(900px, 92vw);
 }
+#loveCenter.show{ opacity:1; }
 
-#loveBgTop{
-  top:26px;
-  font-size: clamp(18px, 3vw, 34px);
-}
-#loveBgBottom{
+/* Bottom signature behind terminals */
+#loveBottom{
+  position:fixed;
+  left:50%;
   bottom:22px;
+  transform:translateX(-50%);
+  z-index:5;
+  pointer-events:none;
+  text-align:center;
+  font-weight:1000;
+  letter-spacing:.3px;
+  color:#ffffffad;
+  text-shadow: 0 10px 30px #000000aa;
+  opacity:0;
+  transition: opacity .25s ease;
   font-size: clamp(14px, 2.3vw, 22px);
-  color:#ffffffa8;
 }
+#loveBottom.show{ opacity:1; }
 
-#loveBgTop.show, #loveBgBottom.show{
-  opacity:1;
-}
-
-/* Right-side flowers button */
+/* Right-side flowers button (behind terminals so it can be covered) */
 #flowersBtn{
   position:fixed;
   right:18px;
   top:50%;
   transform:translateY(-50%);
-  z-index:60;
+  z-index:6; /* behind terminals (term is 50) */
   margin:0;
 
   padding:12px 16px;
@@ -226,11 +235,8 @@ pre{
   opacity:0;
   transition: opacity .25s ease;
 }
-#finalScreen.show{
-  opacity:1;
-}
+#finalScreen.show{ opacity:1; }
 #finalScreen .finalCard{
-  pointer-events:none;
   background:#ffffff12;
   border:1px solid #ffffff22;
   border-radius:22px;
@@ -241,6 +247,29 @@ pre{
   width:min(560px, 92vw);
   font-weight:1000;
   font-size: clamp(20px, 3.2vw, 34px);
+}
+
+/* 🌹 Rose confetti */
+#roseConfetti{
+  position:fixed;
+  inset:0;
+  z-index:120;
+  pointer-events:none;
+  overflow:hidden;
+}
+.rose{
+  position:absolute;
+  top:-40px;
+  font-size:24px;
+  will-change: transform;
+  filter: drop-shadow(0 8px 18px rgba(0,0,0,.55));
+  animation: fall var(--dur) linear forwards;
+}
+@keyframes fall{
+  to{
+    transform: translate3d(var(--dx), calc(100vh + 80px), 0) rotate(var(--rot));
+    opacity: 1;
+  }
 }
 </style>
 </head>
@@ -260,8 +289,8 @@ pre{
   </div>
 </div>
 
-<div id="loveBgTop">i love you babe! happy valentines day!</div>
-<div id="loveBgBottom">-danny, your valentine.</div>
+<div id="loveCenter">i love you babe! happy valentines day!</div>
+<div id="loveBottom">-danny, your valentine.</div>
 
 <button id="flowersBtn">wheres my flowers?</button>
 
@@ -269,21 +298,22 @@ pre{
   <div class="finalCard">flowers are on your way!</div>
 </div>
 
+<div id="roseConfetti"></div>
 <div id="desktop"></div>
 
 <script>
 const desktop = document.getElementById("desktop");
 const menu = document.getElementById("menu");
-const card = document.getElementById("card");
 const toast = document.getElementById("toast");
 const toastImg = document.getElementById("toastImg");
 const toastText = document.getElementById("toastText");
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
-const loveBgTop = document.getElementById("loveBgTop");
-const loveBgBottom = document.getElementById("loveBgBottom");
+const loveCenter = document.getElementById("loveCenter");
+const loveBottom = document.getElementById("loveBottom");
 const flowersBtn = document.getElementById("flowersBtn");
 const finalScreen = document.getElementById("finalScreen");
+const roseConfetti = document.getElementById("roseConfetti");
 
 /* HEART */
 const HEART = `
@@ -298,12 +328,8 @@ const HEART = `
        *        
 `.trim();
 
-function rand(min,max){
-  return Math.floor(Math.random()*(max-min+1))+min;
-}
-function clamp(n, min, max){
-  return Math.max(min, Math.min(max, n));
-}
+function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
 
 function closeWindow(win){
   win.style.transition="transform .12s ease, opacity .12s ease";
@@ -329,9 +355,7 @@ function makeTerminal(x,y){
     <pre></pre>
   `;
 
-  el.querySelector(".dot.red")
-    .addEventListener("click",()=>closeWindow(el));
-
+  el.querySelector(".dot.red").addEventListener("click",()=>closeWindow(el));
   desktop.appendChild(el);
   return el;
 }
@@ -345,20 +369,35 @@ function typeHeart(pre,speed=5){
   },speed);
 }
 
+/* spawn one terminal at exact coordinates (clamped) */
+function spawnOneAt(x, y){
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const bw = 320;
+  const bh = 240;
+
+  const xx = clamp(x, 0, Math.max(0, w - bw));
+  const yy = clamp(y, 0, Math.max(0, h - bh));
+
+  const t = makeTerminal(xx, yy);
+  const pre = t.querySelector("pre");
+  typeHeart(pre, 4);
+}
+
 function spawnStorm(count=20){
   const w=window.innerWidth;
   const h=window.innerHeight;
 
   for(let i=0;i<count;i++){
-    const x=rand(20,Math.max(20,w-360));
-    const y=rand(90,Math.max(90,h-260)); // keep away from top toast/love text a bit
+    const x=rand(0, Math.max(0,w-320));
+    const y=rand(0, Math.max(0,h-240));
     const t=makeTerminal(x,y);
     const pre=t.querySelector("pre");
     setTimeout(()=>typeHeart(pre,4), i*90);
   }
 }
 
-/* Messages + matching images (put these 4 files in your repo root) */
+/* Messages + matching images */
 const variants = [
   { text:"Too bad.", img:"img1.png" },
   { text:"i hope ur jokinggg", img:"img2.png" },
@@ -371,9 +410,8 @@ let toastTimer = null;
 
 function getVariant(){
   let i;
-  do{
-    i = rand(0, variants.length-1);
-  }while(i === lastIndex);
+  do{ i = rand(0, variants.length-1); }
+  while(i === lastIndex);
   lastIndex = i;
   return variants[i];
 }
@@ -389,9 +427,7 @@ function showToast(){
   void toast.offsetWidth;
   toast.classList.add("show");
 
-  toastTimer = setTimeout(()=>{
-    toast.classList.remove("show");
-  },2000);
+  toastTimer = setTimeout(()=>toast.classList.remove("show"),2000);
 }
 
 /* YES grows */
@@ -426,11 +462,8 @@ function enableEvasive(){
   if(noBtn.classList.contains("evasive")) return;
 
   noBtn.classList.add("evasive");
-
-  // Detach to body so fixed positioning is reliable
   document.body.appendChild(noBtn);
 
-  // Safe starting point
   noBtn.style.left = "50%";
   noBtn.style.top  = "60%";
   noBtn.style.transform = "translate(-50%, -50%)";
@@ -443,47 +476,88 @@ function enableEvasive(){
   noBtn.addEventListener("mouseenter", moveNo);
 }
 
+/* 🌹 Rose confetti */
+let roseInterval = null;
+let roseStopTimer = null;
+
+function clearRoses(){
+  if(roseInterval) { clearInterval(roseInterval); roseInterval = null; }
+  if(roseStopTimer) { clearTimeout(roseStopTimer); roseStopTimer = null; }
+  roseConfetti.innerHTML = "";
+}
+
+function launchRoseConfetti(durationMs = 5000){
+  clearRoses();
+
+  const spawn = () => {
+    const r = document.createElement("div");
+    r.className = "rose";
+    r.textContent = "🌹";
+
+    const x = rand(0, Math.max(0, window.innerWidth - 24));
+    const dx = rand(-160, 160) + "px";
+    const dur = (rand(1800, 3200) / 1000) + "s";
+    const rot = rand(-720, 720) + "deg";
+    const size = rand(18, 34) + "px";
+
+    r.style.left = x + "px";
+    r.style.setProperty("--dx", dx);
+    r.style.setProperty("--dur", dur);
+    r.style.setProperty("--rot", rot);
+    r.style.fontSize = size;
+
+    roseConfetti.appendChild(r);
+
+    // cleanup after fall
+    const ms = parseFloat(dur) * 1000 + 250;
+    setTimeout(()=>r.remove(), ms);
+  };
+
+  // spawn rate
+  roseInterval = setInterval(spawn, 80);
+  // initial burst
+  for(let i=0;i<18;i++) setTimeout(spawn, i*25);
+
+  roseStopTimer = setTimeout(() => {
+    if(roseInterval) { clearInterval(roseInterval); roseInterval = null; }
+    // allow remaining roses to finish, then clear
+    setTimeout(()=>{ roseConfetti.innerHTML=""; }, 3500);
+  }, durationMs);
+}
+
 /* Clear everything and show final message */
 function clearEverythingAndShowFinal(){
-  // remove all terminals
   desktop.innerHTML = "";
-
-  // hide bg text
-  loveBgTop.classList.remove("show");
-  loveBgBottom.classList.remove("show");
-
-  // hide toast if visible
+  loveCenter.classList.remove("show");
+  loveBottom.classList.remove("show");
   toast.classList.remove("show");
-
-  // hide flowers button
   flowersBtn.classList.remove("show");
   flowersBtn.style.pointerEvents = "none";
-
-  // also ensure no lingering buttons
   if (noBtn) noBtn.style.display = "none";
   if (yesBtn) yesBtn.style.display = "none";
 
-  // show final
   finalScreen.classList.add("show");
+  launchRoseConfetti(5200);
 }
 
 /* YES click */
 yesBtn.addEventListener("click",()=>{
-  // hide menu
   menu.style.display="none";
-
-  // ensure NO disappears even if it got detached to body
   noBtn.style.display = "none";
 
-  // show background love text
-  loveBgTop.classList.add("show");
-  loveBgBottom.classList.add("show");
-
-  // show flowers button
+  loveCenter.classList.add("show");
+  loveBottom.classList.add("show");
   flowersBtn.classList.add("show");
 
-  // spawn terminals
-  spawnStorm(window.innerWidth<600?10:25);
+  // Ensure coverage: center, bottom signature, flowers button
+  const cx = Math.round(window.innerWidth/2 - 160);
+  const cy = Math.round(window.innerHeight/2 - 120);
+  spawnOneAt(cx + 10, cy + 10);     // over center text
+  spawnOneAt(cx + 60, cy + 40);     // another over center text
+  spawnOneAt(Math.round(window.innerWidth/2 - 160), Math.max(0, window.innerHeight - 260)); // bottom area
+  spawnOneAt(Math.max(0, window.innerWidth - 360), Math.round(window.innerHeight/2 - 120)); // flowers area
+
+  spawnStorm(window.innerWidth<600?8:18);
 });
 
 /* NO click */

@@ -152,11 +152,12 @@ pre{
   text-align:left;
 }
 
-/* Smooth movement */
+/* Smooth movement for evasive NO */
 #noBtn.evasive{
   position:fixed;
   z-index:9998;
   transition:left .6s ease, top .6s ease;
+  transform:none;
 }
 </style>
 </head>
@@ -164,7 +165,7 @@ pre{
 <body>
 
 <div id="toast">
-  <img id="toastImg" src="">
+  <img id="toastImg" src="" alt="">
   <span id="toastText"></span>
 </div>
 
@@ -202,6 +203,10 @@ const HEART = `
 
 function rand(min,max){
   return Math.floor(Math.random()*(max-min+1))+min;
+}
+
+function clamp(n, min, max){
+  return Math.max(min, Math.min(max, n));
 }
 
 function closeWindow(win){
@@ -258,7 +263,7 @@ function spawnStorm(count=20){
   }
 }
 
-/* Messages + matching images */
+/* Messages + matching images (put these 4 files in your repo root) */
 const variants = [
   { text:"Too bad.", img:"img1.png" },
   { text:"i hope ur jokinggg", img:"img2.png" },
@@ -305,25 +310,44 @@ function growYes(){
 let noCount = 0;
 
 function moveNo(){
-  const pad = 10;
-  const rect = noBtn.getBoundingClientRect();
-  const bw = rect.width;
-  const bh = rect.height;
+  const pad = 12;
+  const avoidTop = 70; // keep away from toast area
 
-  const maxX = window.innerWidth - bw - pad;
-  const maxY = window.innerHeight - bh - pad;
+  // measure current size accurately
+  const rect = noBtn.getBoundingClientRect();
+  const bw = rect.width || 90;
+  const bh = rect.height || 44;
+
+  const maxX = Math.max(pad, window.innerWidth - bw - pad);
+  const maxY = Math.max(avoidTop, window.innerHeight - bh - pad);
 
   const x = rand(pad, maxX);
-  const y = rand(pad, maxY);
+  const y = rand(avoidTop, maxY);
 
-  noBtn.style.left = x + "px";
-  noBtn.style.top  = y + "px";
+  noBtn.style.left = clamp(x, pad, maxX) + "px";
+  noBtn.style.top  = clamp(y, avoidTop, maxY) + "px";
 }
 
 function enableEvasive(){
   if(noBtn.classList.contains("evasive")) return;
+
   noBtn.classList.add("evasive");
-  moveNo();
+
+  // Detach to body so fixed positioning is reliable
+  document.body.appendChild(noBtn);
+
+  // Set a safe starting point, then move next frame
+  noBtn.style.left = "50%";
+  noBtn.style.top  = "60%";
+  noBtn.style.transform = "translate(-50%, -50%)";
+
+  requestAnimationFrame(() => {
+    noBtn.style.transform = ""; // remove transform so left/top are pixel-based
+    moveNo();
+  });
+
+  // Optional: dodge on hover too (comment out if you don't want it)
+  noBtn.addEventListener("mouseenter", moveNo);
 }
 
 yesBtn.addEventListener("click",()=>{
@@ -341,8 +365,12 @@ noBtn.addEventListener("click",()=>{
     moveNo();
   }
 });
+
+/* Keep NO on-screen if the user resizes/rotates */
+window.addEventListener("resize", () => {
+  if(noBtn.classList.contains("evasive")) moveNo();
+});
 </script>
 
 </body>
 </html>
-

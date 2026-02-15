@@ -35,7 +35,7 @@ body{
 
 
 
-/* ✅ Bigger Toast with image */
+
 #toast{
   position:fixed;
   top:20px;
@@ -67,7 +67,7 @@ body{
   object-fit:contain;
 }
 
-/* Center card */
+
 .center{
   position:absolute;
   inset:0;
@@ -102,7 +102,7 @@ button:active{ transform:scale(.96); }
   background:linear-gradient(135deg,var(--accent),#c9184a);
 }
 
-/* Desktop */
+
 #desktop{
   position:absolute;
   inset:0;
@@ -122,7 +122,7 @@ button:active{ transform:scale(.96); }
   display:flex;
   flex-direction:column;
   pointer-events:auto;
-  z-index:50; /* above love text & flowers */
+  z-index:50; 
 }
 
 .bar{
@@ -158,7 +158,7 @@ pre{
   text-align:left;
 }
 
-/* Smooth movement for evasive NO */
+
 #noBtn.evasive{
   position:fixed;
   z-index:9998;
@@ -166,7 +166,7 @@ pre{
   transform:none;
 }
 
-/* ✅ Love text in CENTER behind terminals */
+
 #loveCenter{
   position:fixed;
   left:50%;
@@ -186,7 +186,7 @@ pre{
 }
 #loveCenter.show{ opacity:1; }
 
-/* Bottom signature behind terminals */
+
 #loveBottom{
   position:fixed;
   left:50%;
@@ -205,7 +205,7 @@ pre{
 }
 #loveBottom.show{ opacity:1; }
 
-/* Flowers button (kept behind terminals so it can be covered) */
+/* Flowers button */
 #flowersBtn{
   position:fixed;
   right:18px;
@@ -378,7 +378,7 @@ function typeHeart(pre,speed=5){
   },speed);
 }
 
-/* spawn one terminal at exact coordinates (clamped) */
+
 function spawnOneAt(x, y){
   const w = window.innerWidth;
   const h = window.innerHeight;
@@ -399,14 +399,14 @@ function spawnStorm(count=20){
 
   for(let i=0;i<count;i++){
     const x=rand(20,Math.max(20,w-360));
-    const y=rand(70,Math.max(70,h-260)); // allow overlap with center/bottom/flowers
+    const y=rand(70,Math.max(70,h-260)); 
     const t=makeTerminal(x,y);
     const pre=t.querySelector("pre");
     setTimeout(()=>typeHeart(pre,4), i*90);
   }
 }
 
-/* Messages + matching images (put these 4 files in your repo root) */
+
 const variants = [
   { text:"nope, try again!", img:"img1.png" },
   { text:"i hope ur jokinggg", img:"img2.png" },
@@ -458,7 +458,7 @@ let noCount = 0;
 
 function moveNo(){
   const pad = 12;
-  const avoidTop = 100; // keep away from big toast
+  const avoidTop = 100; 
 
   const rect = noBtn.getBoundingClientRect();
   const bw = rect.width || 90;
@@ -591,7 +591,7 @@ noBtn.addEventListener("click",()=>{
   showToast();
   growYes();
 
-  if(noCount >= 3){
+  if(noCount >= 2){
     enableEvasive();
     moveNo();
   }
